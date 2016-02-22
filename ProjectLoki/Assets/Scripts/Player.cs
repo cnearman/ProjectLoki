@@ -20,6 +20,9 @@ public class Player : BaseClass {
 
     public GameObject CameraContainer;
 
+    private Vector3 currentPosition;
+    private Quaternion currentRotation;
+
     // Use this for initialization
     void Start()
     {
@@ -38,9 +41,10 @@ public class Player : BaseClass {
     {
         if (m_PhotonView.isMine == false && PhotonNetwork.connected == true)
         {
-            return;
+            transform.position = Vector3.Lerp(transform.position, this.currentPosition, Time.deltaTime * 5);
+            transform.rotation = Quaternion.Lerp(transform.rotation, this.currentRotation, Time.deltaTime * 5);
         }
-       
+
         if (Controller.isGrounded)
         {
             moveDirection = Vector3.zero;
@@ -70,6 +74,23 @@ public class Player : BaseClass {
         if (CameraContainer)
         {
             CameraContainer.transform.localRotation = Quaternion.AngleAxis(-RotationLongitudinal, Vector3.right);
+        }
+    }
+
+    public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
+    {
+        if (stream.isWriting)
+        {
+            // We own this player: send the others our data
+            stream.SendNext(transform.position);
+            stream.SendNext(transform.rotation);
+
+        }
+        else
+        {
+            // Network player, receive data
+            this.currentPosition = (Vector3)stream.ReceiveNext();
+            this.currentRotation = (Quaternion)stream.ReceiveNext();
         }
     }
 }
