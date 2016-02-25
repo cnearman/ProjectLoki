@@ -4,7 +4,7 @@ using System;
 
 namespace ProjectLoki.Weapons
 {
-    public class Gun : IWeapon
+    public class Gun : IWeapon, IReloadable
     {
 
         public Gun()
@@ -19,30 +19,47 @@ namespace ProjectLoki.Weapons
             this.CurrentCooldown = 0;
             this.CurrentAmmo = this.ClipSize;
             this.CurrentReloadTime = 0;
-            this.IsReloading = false;
+            this.State = WeaponState.Idle;
         }
 
-        public IProjectile Projectile { get; internal set; }
-        public FireDistribution Distribution { get; internal set; }
+        public IProjectile Projectile { get;  set; }
+        public FireDistribution Distribution { get;  set; }
 
-        public float CurrentCooldown { get; internal set; }
-        public float FireRate { get; internal set; }
+        public float CurrentCooldown { get; set; }
+        public float FireRate { get;  set; }
 
-        public int CurrentAmmo { get; internal set; }
-        public int ClipSize { get; internal set; }
+        public int CurrentAmmo { get; set; }
+        public int ClipSize { get;  set; }
 
-        public float CurrentReloadTime { get; internal set; }
-        public float ReloadSpeed { get; internal set; }
-        public bool IsReloading { get; internal set; }
+        public float CurrentReloadTime { get;  set; }
+        public float ReloadSpeed { get;  set; }
 
-        public float Range { get; internal set; }
+        public WeaponState State;
+
+        public float Range { get;  set; }
+
+        private bool IsReloading
+        {
+            get
+            {
+                return this.State == WeaponState.Reloading;
+            }
+        }
+
+        private bool IsIdle
+        {
+            get
+            {
+                return this.State == WeaponState.Idle;
+            }
+        }
 
 
         public bool CanFire
         {
             get
             {
-                return !this.IsReloading && this.CurrentAmmo > 0 && this.CurrentCooldown == 0;
+                return this.CurrentAmmo > 0 && this.CurrentCooldown == 0 && this.IsIdle;
             }
         }
 
@@ -50,7 +67,7 @@ namespace ProjectLoki.Weapons
         {
             get
             {
-                return this.CurrentAmmo < this.ClipSize;
+                return this.CurrentAmmo < this.ClipSize && this.IsIdle;
             }
         }
 
@@ -58,12 +75,13 @@ namespace ProjectLoki.Weapons
         {
             if(this.CanFire)
             {
+                this.State = WeaponState.Firing;
                 float accuracy = 1.0f;
 
                 foreach(Fire bulletSetting in this.Distribution.GetDistribution(accuracy))
                 {
                     RaycastHit hit = new RaycastHit();
-                    if (Physics.Raycast(bulletSetting.Position, bulletSetting.Rotation, out hit, this.Range))
+                    if (Physics.Raycast(position + bulletSetting.Position , bulletSetting.Rotation, out hit, this.Range))
                     {
                         this.Projectile.ApplyEffects(hit);
                     }
@@ -78,12 +96,24 @@ namespace ProjectLoki.Weapons
         {
             if(CanReload)
             {
-                this.IsReloading = true;
+                this.State = WeaponState.Reloading;
                 // We will need to put some start time here dealio while we run the reload animation.
                 // then do this.
                 this.CurrentAmmo = ClipSize;
-                this.IsReloading = false;
+                this.State = WeaponState.Idle;
             }
+        }
+
+        public void InterruptReload()
+        {
+            // We will need to put some 
+            this.State = WeaponState.Idle;
+        }
+
+        public void ReduceCooldowns(float delta)
+        {
+            this.CurrentCooldown = Mathf.Clamp(this.CurrentCooldown - delta, 0, float.MaxValue);
+            this.CurrentReloadTime = Mathf.Clamp(this.CurrentReloadTime - delta, 0, float.MaxValue);
         }
     }
 }
