@@ -56,6 +56,19 @@ namespace ProjectLoki.Weapons
                 reloadingWeapon.Reload();
             }
         }
+
+        public void SwitchWeapon()
+        {
+            if (this.SelectedWeapon == WeaponSlot.Primary)
+            {
+                this.SelectedWeapon = WeaponSlot.Secondary;
+            }
+            else
+            {
+                this.SelectedWeapon = WeaponSlot.Primary;
+            }
+        }
+
     }
 
     public enum WeaponSlot

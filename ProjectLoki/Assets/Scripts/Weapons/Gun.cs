@@ -106,7 +106,9 @@ namespace ProjectLoki.Weapons
 
         public void InterruptReload()
         {
-            // We will need to put some 
+            // We will need to put some way to break out of the reloading once we implement the 
+            // reloading of one bullet at a time.
+            // Note: may be gun specific?
             this.State = WeaponState.Idle;
         }
 
