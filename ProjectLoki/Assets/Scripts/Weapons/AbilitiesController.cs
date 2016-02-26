@@ -9,6 +9,8 @@ namespace ProjectLoki.Weapons
         void Awake()
         {
             m_PhotonView = GetComponent<PhotonView>();
+            this.PrimaryWeapon = new Gun();
+            this.SecondaryWeapon = new Gun();
         }
 
         public WeaponSlot SelectedWeapon;
@@ -43,9 +45,9 @@ namespace ProjectLoki.Weapons
             }
         }
 
-        public void FireWeapon(Vector3 position)
+        public void FireWeapon(Vector3 position, Vector3 rotation)
         {
-            this.CurrentWeapon.Activate(position);
+            this.CurrentWeapon.Activate(position, rotation);
         }
 
         public void SecondaryAction()

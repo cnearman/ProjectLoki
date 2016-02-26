@@ -71,7 +71,7 @@ namespace ProjectLoki.Weapons
             }
         }
 
-        public void Activate(Vector3 position)
+        public void Activate(Vector3 position, Vector3 rotation)
         {
             if(this.CanFire)
             {
@@ -81,7 +81,7 @@ namespace ProjectLoki.Weapons
                 foreach(Fire bulletSetting in this.Distribution.GetDistribution(accuracy))
                 {
                     RaycastHit hit = new RaycastHit();
-                    if (Physics.Raycast(position + bulletSetting.Position , bulletSetting.Rotation, out hit, this.Range))
+                    if (Physics.Raycast(position + bulletSetting.Position , (rotation + bulletSetting.Rotation), out hit, this.Range))
                     {
                         this.Projectile.ApplyEffects(hit);
                     }
@@ -89,6 +89,7 @@ namespace ProjectLoki.Weapons
 
                 this.CurrentAmmo -= 1;
                 this.CurrentCooldown = FireRate;
+                this.State = WeaponState.Idle;
             }
         }
 

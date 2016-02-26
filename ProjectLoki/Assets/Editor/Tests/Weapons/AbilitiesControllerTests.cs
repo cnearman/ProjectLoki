@@ -28,7 +28,7 @@ namespace ProjectLoki.Tests.Weapons
         {
             public string Name { get; set; }
 
-            public void Activate(Vector3 position)
+            public void Activate(Vector3 position, Vector3 rotation)
             {
                 throw new NotImplementedException();
             }

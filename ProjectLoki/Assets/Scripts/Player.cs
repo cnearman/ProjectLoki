@@ -1,10 +1,12 @@
 ﻿using UnityEngine;
 using System.Collections;
+using ProjectLoki.Weapons;
 
 public class Player : BaseClass {
 
     CharacterController Controller;
     PhotonView m_PhotonView;
+    AbilitiesController Abilities;
     Vector3 moveDirection;
 
     public bool IsJumping { get; set; }
@@ -28,6 +30,7 @@ public class Player : BaseClass {
     {
         Controller = GetComponent<CharacterController>();
         m_PhotonView = GetComponent<PhotonView>();
+        Abilities = GetComponent<AbilitiesController>();
 
         m_PhotonView = GetComponent<PhotonView>();
         if (m_PhotonView.isMine)
@@ -74,6 +77,11 @@ public class Player : BaseClass {
         if (CameraContainer)
         {
             CameraContainer.transform.localRotation = Quaternion.AngleAxis(-RotationLongitudinal, Vector3.right);
+        }
+
+        if (Input.GetButtonDown("Fire1"))
+        {
+            Abilities.FireWeapon(CameraContainer.GetComponent<Camera>().transform.position, CameraContainer.GetComponent<Camera>().transform.forward);
         }
     }
 
