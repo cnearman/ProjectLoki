@@ -1,10 +1,12 @@
 ﻿using UnityEngine;
 using System.Collections;
+using ProjectLoki.Weapons;
 
 public class Player : BaseClass {
 
     CharacterController Controller;
     PhotonView m_PhotonView;
+    AbilitiesController Abilities;
     PhotonTransformView m_PhotonTransformView;
     Vector3 moveDirection;
 
@@ -30,6 +32,7 @@ public class Player : BaseClass {
         Controller = GetComponent<CharacterController>();
         m_PhotonView = GetComponent<PhotonView>();
         m_PhotonTransformView = GetComponent<PhotonTransformView>();
+        Abilities = GetComponent<AbilitiesController>();
 
         m_PhotonView = GetComponent<PhotonView>();
         if (m_PhotonView.isMine)
@@ -78,8 +81,8 @@ public class Player : BaseClass {
             moveDirection.z = temp.z * speed * 2f;
         } else
         {
-            moveDirection.x = temp.x * speed;
-            moveDirection.z = temp.z * speed;
+        moveDirection.x = temp.x * speed;
+        moveDirection.z = temp.z * speed;
         }
 
         moveDirection.y -= gravity * Time.deltaTime;
@@ -97,6 +100,11 @@ public class Player : BaseClass {
         if (CameraContainer)
         {
             CameraContainer.transform.localRotation = Quaternion.AngleAxis(-RotationLongitudinal, Vector3.right);
+        }
+
+        if (Input.GetButtonDown("Fire1"))
+        {
+            Abilities.FireWeapon(CameraContainer.GetComponent<Camera>().transform.position, CameraContainer.GetComponent<Camera>().transform.forward);
         }
     }
 

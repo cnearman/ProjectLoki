@@ -24,7 +24,7 @@ public class PlatformRunnerConfiguration
     public PlatformRunnerConfiguration(BuildTarget buildTarget)
     {
         this.buildTarget = buildTarget;
-        projectName = EditorApplication.currentScene;
+        projectName = EditorSceneManager.GetActiveScene().name;
     }
 
     public PlatformRunnerConfiguration()
