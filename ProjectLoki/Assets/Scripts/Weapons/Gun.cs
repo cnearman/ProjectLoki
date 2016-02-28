@@ -93,6 +93,18 @@ namespace ProjectLoki.Weapons
             }
         }
 
+        [PunRPC]
+        public void SendResultToClients()
+        {
+
+        }
+
+        [PunRPC]
+        public void DisplayAnimation(Vector3 position, Vector3 rotation)
+        {
+
+        }
+
         public void Reload()
         {
             if(CanReload)

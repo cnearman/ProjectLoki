@@ -45,7 +45,15 @@ namespace ProjectLoki.Weapons
             }
         }
 
+
         public void FireWeapon(Vector3 position, Vector3 rotation)
+        {
+            this.m_PhotonView.RPC("FireWeaponOnServer", PhotonTargets.All, position, rotation);
+            //this.CurrentWeapon.DisplayAnimation(position, rotation);
+        }
+
+        [PunRPC]
+        public void FireWeaponOnServer(Vector3 position, Vector3 rotation)
         {
             this.CurrentWeapon.Activate(position, rotation);
         }

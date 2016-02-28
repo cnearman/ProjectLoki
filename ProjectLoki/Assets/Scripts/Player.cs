@@ -106,6 +106,11 @@ public class Player : BaseClass {
         {
             Abilities.FireWeapon(CameraContainer.GetComponent<Camera>().transform.position, CameraContainer.GetComponent<Camera>().transform.forward);
         }
+
+        if (Input.GetButtonDown("Fire2"))
+        {
+            Abilities.SecondaryAction();
+        }
     }
 
     public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)

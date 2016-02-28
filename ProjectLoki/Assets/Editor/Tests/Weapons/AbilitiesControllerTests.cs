@@ -33,7 +33,17 @@ namespace ProjectLoki.Tests.Weapons
                 throw new NotImplementedException();
             }
 
+            public void DisplayAnimation(Vector3 position, Vector3 rotation)
+            {
+                throw new NotImplementedException();
+            }
+
             public void ReduceCooldowns(float delta)
+            {
+                throw new NotImplementedException();
+            }
+
+            public void SendResultToClients()
             {
                 throw new NotImplementedException();
             }
