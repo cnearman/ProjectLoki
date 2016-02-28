@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
-using UnityEditor.SceneManagement;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -102,8 +101,8 @@ namespace UnityTest
 
             if (!component.dynamic)
                 serializedObject.ApplyModifiedProperties();
-            if (GUI.changed)
-                EditorSceneManager.MarkSceneDirty(EditorSceneManager.GetActiveScene());
+            if(GUI.changed)
+                EditorApplication.MarkSceneDirty();
         }
 
         private string[] GetListOfIgnoredPlatforms(string[] enumList, int flags)

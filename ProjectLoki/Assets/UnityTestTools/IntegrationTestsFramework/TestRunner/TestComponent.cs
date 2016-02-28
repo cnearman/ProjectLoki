@@ -6,7 +6,6 @@ using UnityEngine;
 
 #if UNITY_EDITOR
 using UnityEditor;
-using UnityEditor.SceneManagement;
 #endif
 
 namespace UnityTest
@@ -309,7 +308,7 @@ namespace UnityTest
         public static bool AnyDynamicTestForCurrentScene()
         {
 #if UNITY_EDITOR
-                return TestComponent.GetTypesWithHelpAttribute(EditorSceneManager.GetActiveScene().name).Any();
+                return TestComponent.GetTypesWithHelpAttribute(EditorApplication.currentScene).Any();
 #else
                 return TestComponent.GetTypesWithHelpAttribute(Application.loadedLevelName).Any();
 #endif
