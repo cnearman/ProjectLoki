@@ -5,7 +5,6 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using UnityEditor;
-using UnityEditor.SceneManagement;
 using UnityEngine;
 
 [Serializable]
@@ -15,7 +14,7 @@ public class PlatformRunnerConfiguration
     public List<string> testScenes;
     public BuildTarget buildTarget;
     public bool runInEditor;
-    public string projectName = EditorSceneManager.GetActiveScene().name;
+    public string projectName = EditorApplication.currentScene;
 
     public string resultsDir = null;
     public bool sendResultsOverNetwork;

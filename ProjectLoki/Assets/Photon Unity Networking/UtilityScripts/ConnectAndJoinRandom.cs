@@ -65,6 +65,8 @@ public class ConnectAndJoinRandom : Photon.MonoBehaviour
 
     public void OnJoinedRoom()
     {
+        PhotonNetwork.sendRate = 30;
+        PhotonNetwork.sendRateOnSerialize = 30;
         Debug.Log("OnJoinedRoom() called by PUN. Now this client is in a room. From here on, your game would be running. For reference, all callbacks are listed in enum: PhotonNetworkingMessage");
     }
 }
