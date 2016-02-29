@@ -33,6 +33,11 @@ namespace ProjectLoki.Tests.Weapons
                 throw new NotImplementedException();
             }
 
+            public void Activate(Vector3 position, Vector3 rotation, double timeTriggered)
+            {
+                throw new NotImplementedException();
+            }
+
             public void DisplayAnimation(Vector3 position, Vector3 rotation)
             {
                 throw new NotImplementedException();

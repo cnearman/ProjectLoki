@@ -71,7 +71,7 @@ namespace ProjectLoki.Weapons
             }
         }
 
-        public void Activate(Vector3 position, Vector3 rotation)
+        public void Activate(Vector3 position, Vector3 rotation, double timeTriggered)
         {
             if(this.CanFire)
             {
@@ -88,7 +88,7 @@ namespace ProjectLoki.Weapons
                 }
 
                 this.CurrentAmmo -= 1;
-                this.CurrentCooldown = FireRate;
+                this.CurrentCooldown = (float)((FireRate *0.0d) - (PhotonNetwork.time - timeTriggered));
                 this.State = WeaponState.Idle;
             }
         }
