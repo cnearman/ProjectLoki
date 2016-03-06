@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Linq;
 using ProjectLoki.Weapons;
 
 public class Player : BaseClass {
@@ -110,6 +111,25 @@ public class Player : BaseClass {
         if (Input.GetButtonDown("Fire2"))
         {
             Abilities.SecondaryAction();
+        }
+        if (Input.GetButtonDown("SwitchWeapons"))
+        {
+            Abilities.SwitchWeapon();
+        }
+
+        if (Input.GetButtonDown("Ability1"))
+        {
+            Abilities.Abilities.ElementAt(0).Activate();
+        }
+
+        if (Input.GetButtonDown("Ability2"))
+        {
+            Abilities.Abilities.ElementAt(1).Activate();
+        }
+
+        if (Input.GetButtonDown("Ability3"))
+        {
+            Abilities.Abilities.ElementAt(2).Activate();
         }
     }
 

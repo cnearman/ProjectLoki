@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using System.Linq;
+using UnityEngine;
 
 namespace ProjectLoki.Weapons
 {
@@ -11,12 +13,19 @@ namespace ProjectLoki.Weapons
             m_PhotonView = GetComponent<PhotonView>();
             this.PrimaryWeapon = new Gun();
             this.SecondaryWeapon = new Gun();
+            List<IAbility> abList = new List<IAbility>();
+            abList.Add(new BaseAbility("Ability 1"));
+            abList.Add(new BaseAbility("Ability 2"));
+            abList.Add(new BaseAbility("Ability 3"));
+            Abilities = abList;
         }
 
         public WeaponSlot SelectedWeapon;
 
         public IWeapon PrimaryWeapon;
         public IWeapon SecondaryWeapon;
+
+        public IEnumerable<IAbility> Abilities;
 
         public IWeapon CurrentWeapon
         {
@@ -38,8 +47,20 @@ namespace ProjectLoki.Weapons
 
         public void Update()
         {
+<<<<<<< Updated upstream
             PrimaryWeapon.ReduceCooldowns(Time.deltaTime);
             SecondaryWeapon.ReduceCooldowns(Time.deltaTime);
+=======
+            if(m_PhotonView.isMine)
+            {
+                PrimaryWeapon.ReduceCooldowns(Time.deltaTime);
+                SecondaryWeapon.ReduceCooldowns(Time.deltaTime);
+                foreach(IAbility ability in Abilities)
+                {
+                    ability.Tick(Time.deltaTime);
+                }
+            }
+>>>>>>> Stashed changes
         }
 
 
