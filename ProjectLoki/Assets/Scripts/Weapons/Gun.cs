@@ -4,8 +4,9 @@ using System;
 
 namespace ProjectLoki.Weapons
 {
-    public class Gun : IWeapon, IReloadable
+    public class Gun :BaseClass, IWeapon, IReloadable
     {
+        public string Name = "Gun";
 
         public Gun()
         {
