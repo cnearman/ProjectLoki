@@ -26,6 +26,10 @@ public class Player : BaseClass {
     private Vector3 currentPosition;
     private Quaternion currentRotation;
 
+    //these are different movement states. i put them here but there may be a better place
+    public bool noMove; //you can look but you cant move (game countdown)
+    public bool dead; //you dead. no move, collider and such inactive
+
     // Use this for initialization
     void Start()
     {
@@ -83,6 +87,12 @@ public class Player : BaseClass {
         {
         moveDirection.x = temp.x * speed;
         moveDirection.z = temp.z * speed;
+        }
+
+        if(noMove)
+        {
+            moveDirection.x = 0f;
+            moveDirection.z = 0f;
         }
 
         moveDirection.y -= gravity * Time.deltaTime;
