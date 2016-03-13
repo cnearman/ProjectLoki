@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class PlayerSelect : BaseClass {
 
@@ -25,6 +26,6 @@ public class PlayerSelect : BaseClass {
 
     public void StartGame()
     {
-        Application.LoadLevel("Test_Player");
+        SceneManager.LoadScene("Test_Player");
     }
 }

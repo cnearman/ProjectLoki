@@ -16,7 +16,10 @@ public class PlayerManager : BaseClass
     bool ready;
 
     //public int team;
-    
+    void Awake()
+    {
+        inGame = false;
+    }
 
     void Update()
     {

@@ -41,6 +41,8 @@ public class Player : BaseClass {
             CameraContainer.GetComponent<Camera>().enabled = true;
             m_PhotonTransformView.SetSynchronizedValues(Controller.velocity, 0f); //initalize the synch values
         }
+        Debug.Log(currentPosition);
+        Debug.Log(currentRotation);
     }
 
     // Update is called once per frame

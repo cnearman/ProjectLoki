@@ -47,10 +47,6 @@ namespace ProjectLoki.Weapons
 
         public void Update()
         {
-<<<<<<< Updated upstream
-            PrimaryWeapon.ReduceCooldowns(Time.deltaTime);
-            SecondaryWeapon.ReduceCooldowns(Time.deltaTime);
-=======
             if(m_PhotonView.isMine)
             {
                 PrimaryWeapon.ReduceCooldowns(Time.deltaTime);
@@ -60,7 +56,6 @@ namespace ProjectLoki.Weapons
                     ability.Tick(Time.deltaTime);
                 }
             }
->>>>>>> Stashed changes
         }
 
 

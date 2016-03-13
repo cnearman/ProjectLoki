@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using UnityEditor;
+using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityTest.IntegrationTestRunner;
 
@@ -83,10 +84,10 @@ namespace UnityTest
         private static void BackgroundSceneChangeWatch()
         {
             if (!s_Instance) return;
-            if (s_Instance.m_CurrectSceneName != null && s_Instance.m_CurrectSceneName == EditorApplication.currentScene) return;
+            if (s_Instance.m_CurrectSceneName != null && s_Instance.m_CurrectSceneName == EditorSceneManager.GetActiveScene().name) return;
             if (EditorApplication.isPlayingOrWillChangePlaymode) return;
             TestComponent.DestroyAllDynamicTests();
-            s_Instance.m_CurrectSceneName = EditorApplication.currentScene;
+            s_Instance.m_CurrectSceneName = EditorSceneManager.GetActiveScene().name;
             s_Instance.m_ResultList.Clear();
             s_Instance.RebuildTestList();
         }
@@ -239,7 +240,7 @@ namespace UnityTest
             if (!EditorApplication.isPlayingOrWillChangePlaymode)
             {
                 var dynamicTestsOnScene = TestComponent.FindAllDynamicTestsOnScene();
-                var dynamicTestTypes = TestComponent.GetTypesWithHelpAttribute(EditorApplication.currentScene);
+                var dynamicTestTypes = TestComponent.GetTypesWithHelpAttribute(EditorSceneManager.GetActiveScene().name);
 
                 foreach (var dynamicTestType in dynamicTestTypes)
                 {
