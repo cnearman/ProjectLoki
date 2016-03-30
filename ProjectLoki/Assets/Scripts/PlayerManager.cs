@@ -26,7 +26,7 @@ public class PlayerManager : BaseClass
         //Debug.Log(PhotonNetwork.player.ID);
 
         currentTeam.text = "Team " + gm.myTeam;
-        playerCount.text = "Players: " + gm.NumPlayers();
+        //playerCount.text = "Players: " + gm.NumPlayers();
         playCountDown.text = "Starting in: " + gm.countDownLength.ToString("F1");
 
         if (!inGame)
