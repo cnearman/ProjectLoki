@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using UnityEngine;
-using UnityEditor.SceneManagement;
+//using UnityEditor.SceneManagement;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -308,10 +308,11 @@ namespace UnityTest
 
         public static bool AnyDynamicTestForCurrentScene()
         {
+            return false;
 #if UNITY_EDITOR
-                return TestComponent.GetTypesWithHelpAttribute(EditorSceneManager.GetActiveScene().name).Any();
+                //return TestComponent.GetTypesWithHelpAttribute(EditorSceneManager.GetActiveScene().name).Any();
 #else
-                return TestComponent.GetTypesWithHelpAttribute(SceneManager.GetActiveScene().name).Any();
+                //return TestComponent.GetTypesWithHelpAttribute(SceneManager.GetActiveScene().name).Any();
 #endif
         }
 

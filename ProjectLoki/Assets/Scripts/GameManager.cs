@@ -5,20 +5,15 @@ using UnityEngine.UI;
 
 public class GameManager : BaseClass
 {
+    public GameObject[] spawnPoints;
+
     //info about me
     public GameObject me;
-    public int myTeam;
 
     bool ready;
     bool inGame;
 
-    //team list
-    Dictionary<int, int> playerTeams = new Dictionary<int, int>();
-
-    //respawn stuff
-    Dictionary<int, float> respawns = new Dictionary<int, float>();
-    List<int> decRespawn = new List<int>();
-    List<int> clearRespawn = new List<int>();
+    Dictionary<int, PlayerInfo> playerDictionary = new Dictionary<int, PlayerInfo>();
 
     public Vector3 spawnT1;
     public Vector3 spawnT2;
@@ -37,16 +32,21 @@ public class GameManager : BaseClass
     public int team1Points;
     public int team2Points;
 
-    Dictionary<int, int> playersKills = new Dictionary<int, int>();
-    Dictionary<int, int> playersDeaths = new Dictionary<int, int>();
-
     //UI stuff
+    public GameObject mainCanvas;
+
     public Text currentTeam;
     public Text currentPlayer;
     public Text playCountDown;
     public Text readyUpCheck;
     public Text playerCount;
     public GameObject readyNotification;
+
+    public GameObject DeathImage;
+    public GameObject EndImage;
+    public Text endText;
+
+    public GameObject hitImage;
 
     //scoreboard
     public GameObject scoreboard;
@@ -56,14 +56,16 @@ public class GameManager : BaseClass
     public Text team1Players;
     public Text team2Players;
 
-    
 
     void Update()
     {
         numberOfPlayers = PhotonNetwork.playerList.Length; //probably don't want to do this every update
 
         //update the ui with game info
-        currentTeam.text = "Team " + myTeam;
+        if (inGame)
+        {
+            currentTeam.text = "Team " + playerDictionary[PhotonNetwork.player.ID].team;
+        }
         currentPlayer.text = "Player " + PhotonNetwork.player.ID;
         playerCount.text = "Players: " + numberOfPlayers;
         playCountDown.text = "Starting in: " + countDownLength.ToString("F1");
@@ -89,6 +91,8 @@ public class GameManager : BaseClass
             {
                 countingDown = false;
 
+                readyNotification.SetActive(false);
+
                 if(PhotonNetwork.isMasterClient)
                 {
                     GetComponent<PhotonView>().RPC("BeginGame", PhotonTargets.AllBuffered);
@@ -107,8 +111,6 @@ public class GameManager : BaseClass
             }
         }
 
-        ReduceRespawns();
-
         //updatescoreboard
         team1kills.text = "Kills: " + team1Points;
         team2kills.text = "Kills: " + team2Points;
@@ -116,21 +118,26 @@ public class GameManager : BaseClass
         string team1playerinfo = "";
         string team2playerinfo = "";
 
-        foreach(int pl in playerTeams.Keys)
+        foreach(int pl in playerDictionary.Keys)
         {
-            if(playerTeams[pl] == 1)
+            if(playerDictionary[pl].team == 1)
             {
-                team1playerinfo += "Player " + pl + "    " + playersKills[pl] + "    " + playersDeaths[pl] + "\n";
+                team1playerinfo += "Player " + pl + "    " + playerDictionary[pl].kills + "    " + playerDictionary[pl].deaths + "\n";
             }
 
-            if (playerTeams[pl] == 2)
+            if (playerDictionary[pl].team == 2)
             {
-                team2playerinfo += "Player " + pl + "    " + playersKills[pl] + "    " + playersDeaths[pl] + "\n";
+                team2playerinfo += "Player " + pl + "    " + playerDictionary[pl].kills + "    " + playerDictionary[pl].deaths + "\n";
             }
         }
 
         team1Players.text = team1playerinfo;
         team2Players.text = team2playerinfo;
+
+        if(inGame)
+        {
+            DecreaseRespanws();
+        }
 
         //open/close scoreboard
         if(Input.GetButtonDown("Score"))
@@ -154,36 +161,94 @@ public class GameManager : BaseClass
         {
             GetComponent<PhotonView>().RPC("KillConfirmed", PhotonTargets.AllBuffered, PhotonNetwork.player.ID, PhotonNetwork.player.ID);
         }
+
+        //this is to test damage indicators
+        if(Input.GetButtonDown("TestHitFront"))
+        {
+            Vector3 tester = new Vector3(0, 0, -1);
+
+            ShowDamageMarkers(tester);
+        }
+
+        //this is to test damage indicators
+        if (Input.GetButtonDown("TestHitBack"))
+        {
+            Vector3 tester = new Vector3(0, 0, 1);
+
+            ShowDamageMarkers(tester);
+        }
+
+        //this is to test damage indicators
+        if (Input.GetButtonDown("TestHitLeft"))
+        {
+            Vector3 tester = new Vector3(1, 0, 0);
+
+            ShowDamageMarkers(tester);
+        }
+
+        //this is to test damage indicators
+        if (Input.GetButtonDown("TestHitRight"))
+        {
+            Vector3 tester = new Vector3(-1, 0, 0);
+
+            ShowDamageMarkers(tester);
+        }
+
+        //Debug.Log(me.transform.eulerAngles.y);
     }
 
-    //tick down the respawns and if master respawn them
-    public void ReduceRespawns()
+    public void ShowDamageMarkers(Vector3 hit)
     {
-        foreach(int pl in respawns.Keys)
-        {
-            decRespawn.Add(pl);
-        }
+        GameObject tempInd = (GameObject)Instantiate(hitImage, Vector3.zero, Quaternion.identity);
+        tempInd.transform.SetParent(mainCanvas.transform);
+        tempInd.transform.localPosition = Vector3.zero;
 
-        foreach(int dc in decRespawn)
+        float opp = 0 - hit.z;
+        float adj = 0 - hit.x;
+
+        float angle = Mathf.Atan2(opp, adj);
+        angle *= Mathf.Rad2Deg;
+        angle -= 90f;
+
+        angle += me.transform.eulerAngles.y;
+
+        Debug.Log(angle);
+
+        tempInd.transform.localEulerAngles = new Vector3(0f, 0f, angle);
+    }
+
+    //its expensive to change all the text so we only want to do this when we need to.
+    //ideally we will only change parts but for now we'll just refresh it all when they call the scoreboard
+    void UpdateUIText()
+    {
+
+    }
+
+    //This decreases the respawns for all dead players.  Note that this is just display information for clients where
+    //this server will actually do something if a cound hits zero
+    void DecreaseRespanws()
+    {
+        List<int> tempPlayers = new List<int> (playerDictionary.Keys);
+
+        foreach(int current in tempPlayers)
         {
-            respawns[dc] -= Time.deltaTime;
-            if (respawns[dc] <= 0f)
+            if(playerDictionary[current].dead)
             {
-                clearRespawn.Add(dc);
+                if(playerDictionary[current].currentRespawnTime <= 0f)
+                {
+                    if(PhotonNetwork.isMasterClient)
+                    {
+                        playerDictionary[current].dead = false;
+                        playerDictionary[current].currentRespawnTime = 0f;
+
+                        GetComponent<PhotonView>().RPC("RequestSpawn", PhotonTargets.All, current, playerDictionary[current].team);
+                    }
+                } else
+                {
+                    playerDictionary[current].currentRespawnTime -= Time.deltaTime;
+                }
             }
         }
-
-        foreach(int rm in clearRespawn)
-        {
-            respawns.Remove(rm);
-            if (PhotonNetwork.isMasterClient)
-            {
-                GetComponent<PhotonView>().RPC("RequestSpawn", PhotonTargets.All, playerTeams[rm], rm);
-            }
-        }
-
-        decRespawn.Clear();
-        clearRespawn.Clear();
     }
 
     //Lets eveyone know that this client is ready
@@ -221,12 +286,12 @@ public class GameManager : BaseClass
                 {
                     //playerTeams.Add(player.ID, 1);
                     GetComponent<PhotonView>().RPC("GiveTeam", PhotonTargets.AllBuffered, player.ID, 1);
-                    GetComponent<PhotonView>().RPC("RequestSpawn", PhotonTargets.All, 1, player.ID);
+                    GetComponent<PhotonView>().RPC("RequestSpawn", PhotonTargets.All, player.ID, 1);
                 } else
                 {
                     //playerTeams.Add(player.ID, 2);
                     GetComponent<PhotonView>().RPC("GiveTeam", PhotonTargets.AllBuffered, player.ID, 2);
-                    GetComponent<PhotonView>().RPC("RequestSpawn", PhotonTargets.All, 2, player.ID);
+                    GetComponent<PhotonView>().RPC("RequestSpawn", PhotonTargets.All, player.ID, 2);
                 }
 
                 GetComponent<PhotonView>().RPC("SetNoMove", PhotonTargets.All, player.ID, false);
@@ -240,10 +305,10 @@ public class GameManager : BaseClass
     [PunRPC]
     public void KillConfirmed(int killerId, int victimId)
     {
-        playersKills[killerId] += 1;
-        playersDeaths[victimId] += 1;
+        playerDictionary[killerId].kills += 1;
+        playerDictionary[victimId].deaths += 1;
 
-        if(playerTeams[killerId] == 1)
+        if(playerDictionary[killerId].team == 1)
         {
             team1Points += 1;
         } else
@@ -251,9 +316,13 @@ public class GameManager : BaseClass
             team2Points += 1;
         }
 
-        if (PhotonNetwork.isMasterClient) //this may be added to clients later MOBA style
+        playerDictionary[victimId].dead = true;
+        playerDictionary[victimId].currentRespawnTime = respawnTime;
+
+        if (victimId == PhotonNetwork.player.ID)
         {
-            respawns.Add(victimId, respawnTime);
+            DeathImage.SetActive(true);
+            me.GetComponent<Player>().Die();
         }
 
         if (PhotonNetwork.isMasterClient) //the master clients check to see if the game is over
@@ -261,10 +330,25 @@ public class GameManager : BaseClass
             if(team1Points >= pointsToWin)
             {
                 //endgame
+                GetComponent<PhotonView>().RPC("EndGame", PhotonTargets.All, 1);
             } else if(team2Points >= pointsToWin)
             {
                 //endgame
+                GetComponent<PhotonView>().RPC("EndGame", PhotonTargets.All, 2);
             }
+        }
+    }
+
+    [PunRPC]
+    void EndGame(int winningTeam)
+    {
+        EndImage.SetActive(true);
+        if(playerDictionary[PhotonNetwork.player.ID].team == winningTeam)
+        {
+            endText.text = "YOU WIN!";
+        } else
+        {
+            endText.text = "YOU LOSE!";
         }
     }
 
@@ -273,36 +357,72 @@ public class GameManager : BaseClass
     [PunRPC]
     void IDied(int id)
     {
-        if (PhotonNetwork.isMasterClient) //this may be added to clients later MOBA style
+        playerDictionary[id].dead = true;
+        playerDictionary[id].currentRespawnTime = respawnTime;
+    }
+
+    public void SelfKill(int id)
+    {
+        GetComponent<PhotonView>().RPC("Suicide", PhotonTargets.All, id);
+    }
+
+    //Use this for self kills
+    [PunRPC]
+    void Suicide(int id)
+    {
+        playerDictionary[id].deaths += 1;
+
+        if (playerDictionary[id].team == 1)
         {
-            respawns.Add(id, respawnTime);
+            team1Points -= 1;
+        }
+        else
+        {
+            team2Points -= 1;
+        }
+
+        playerDictionary[id].dead = true;
+        playerDictionary[id].currentRespawnTime = respawnTime;
+
+        if (id == PhotonNetwork.player.ID)
+        {
+            DeathImage.SetActive(true);
+            me.GetComponent<Player>().Die();
         }
     }
 
     //this is run on the master only. given the team it will run an algorithm to determine where the
     //player should spawn.  right now it just checks the team and puts it in the proper side.
     [PunRPC]
-    void RequestSpawn(int team, int id)
+    void RequestSpawn(int id, int team)
     {
         if(PhotonNetwork.isMasterClient)
         {
+
+            int pick = Random.Range(0, spawnPoints.Length);
+
+            Vector3 pos = spawnPoints[pick].transform.position;
+            float rot = spawnPoints[pick].transform.eulerAngles.y;
+
             if(team == 1)
             {
-                GetComponent<PhotonView>().RPC("RecieveSpawn", PhotonTargets.All, spawnT1, id);
+                GetComponent<PhotonView>().RPC("RecieveSpawn", PhotonTargets.All, id, pos, rot);
             } else
             {
-                GetComponent<PhotonView>().RPC("RecieveSpawn", PhotonTargets.All, spawnT2, id);
+                GetComponent<PhotonView>().RPC("RecieveSpawn", PhotonTargets.All, id, pos, rot);
             }
         }
     }
 
     //tells the client where to spawn at
     [PunRPC]
-    void RecieveSpawn(Vector3 spawn, int id)
+    void RecieveSpawn(int id, Vector3 spawn, float rot)
     {
         if(id == PhotonNetwork.player.ID)
         {
-            me.transform.position = spawn;
+            // me.transform.position = spawn;
+            DeathImage.SetActive(false);
+            me.GetComponent<Player>().Respawn(spawn, rot);
         }
     }
 
@@ -310,15 +430,7 @@ public class GameManager : BaseClass
     [PunRPC]
     public void GiveTeam(int id, int team)
     {
-        if(id == PhotonNetwork.player.ID)
-        {
-            Debug.Log("got team");
-            myTeam = team;
-        }
-
-        playerTeams.Add(id, team);
-        playersKills.Add(id, 0);
-        playersDeaths.Add(id, 0);
+        playerDictionary[id].team = team;
     }
 
     //begins the game
@@ -326,6 +438,7 @@ public class GameManager : BaseClass
     public void BeginGame()
     {
         Debug.Log("We are now trying to kill each other");
+        inGame = true;
     }
 
     //start countdown to game start
@@ -355,6 +468,71 @@ public class GameManager : BaseClass
         }
     }
 
+    //players call this when they join, creating their info
+    [PunRPC]
+    void CreateMyInfo(int id)
+    {
+        if(PhotonNetwork.isMasterClient)
+        {
+            PlayerInfo temp = new PlayerInfo();
+            temp.playerNumber = id;
+
+            temp.kills = 0;
+            temp.deaths = 0;
+            
+            //if the game is in progress assign to the imbalanced team and give a respawn, else just put them in the lobby
+            if (inGame)
+            {
+
+            } else
+            {
+                temp.team = 0;
+                temp.dead = false;
+                temp.currentRespawnTime = 0f;
+            }
+
+            playerDictionary[id] = temp;
+        }
+    }
+
+    //this sends a single players info (does not update on master to prevent concurrent editing error)
+    [PunRPC]
+    void SendPlayerInfo(int playerNumber, int playerTeam, int playerKills, int playerDeaths, bool playerDead, float playerRespawn)
+    {
+        if(!PhotonNetwork.isMasterClient)
+        {
+            PlayerInfo temp = new PlayerInfo();
+            temp.playerNumber = playerNumber;
+            temp.team = playerTeam;
+            temp.kills = playerKills;
+            temp.deaths = playerDeaths;
+            temp.dead = playerDead;
+            temp.currentRespawnTime = playerRespawn;
+
+            playerDictionary[playerNumber] = temp;
+        }
+    }
+
+    //Request info on all players, this is what a joining player would call
+    [PunRPC]
+    void RequestAllPlayerInfo()
+    {
+        SendAllPlayerInfo();
+    }
+
+    //the master updates the info for every player in the game (think of it as an all-synch)
+    void SendAllPlayerInfo()
+    {
+        if(PhotonNetwork.isMasterClient)
+        {
+            foreach(int current in playerDictionary.Keys)
+            {
+                PlayerInfo temp = playerDictionary[current];
+                GetComponent<PhotonView>().RPC("SendPlayerInfo", PhotonTargets.All, current, temp.team, temp.kills, temp.deaths, temp.dead, temp.currentRespawnTime);
+            }
+        }
+    }
+
     //creates a character for the player based on player selection
     void OnJoinedRoom()
     {
@@ -365,5 +543,9 @@ public class GameManager : BaseClass
         {
             me = PhotonNetwork.Instantiate(PlayerPrefs.GetString("CurrentCharacter"), Vector3.zero, Quaternion.identity, 0);
         }
+
+       GetComponent<PhotonView>().RPC("CreateMyInfo", PhotonTargets.MasterClient, PhotonNetwork.player.ID);
+
+        GetComponent<PhotonView>().RPC("RequestAllPlayerInfo", PhotonTargets.MasterClient);
     }
 }

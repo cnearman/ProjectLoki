@@ -7,15 +7,21 @@ namespace ProjectLoki.Weapons
     public class Gun :BaseClass, IWeapon, IReloadable
     {
         public string Name = "Gun";
+        public GameObject tracer;
+        public GameObject spray;
+
 
         public Gun()
         {
+            this.tracer = (GameObject) Resources.Load("Tracer");
+            this.spray = (GameObject)Resources.Load("DirtSpray");
+
             this.Projectile = new DefaultProjectile();
             this.Distribution = new DefaultDistribution(0.0f);
             this.FireRate = 0.2f;
             this.ClipSize = 10;
             this.ReloadSpeed = 1.5f;
-            this.Range = 20;
+            this.Range = 200;
 
             this.CurrentCooldown = 0;
             this.CurrentAmmo = this.ClipSize;
@@ -81,15 +87,25 @@ namespace ProjectLoki.Weapons
 
                 foreach(Fire bulletSetting in this.Distribution.GetDistribution(accuracy))
                 {
-                    RaycastHit hit = new RaycastHit();
+                    GameObject tempTracer = (GameObject) Instantiate(tracer, Vector3.zero, Quaternion.identity);
+
+                    RaycastHit hit = new RaycastHit(); 
                     if (Physics.Raycast(position + bulletSetting.Position , (rotation + bulletSetting.Rotation), out hit, this.Range))
                     {
-                        this.Projectile.ApplyEffects(hit);
+                        tempTracer.GetComponent<Tracer>().SetLocation(position + bulletSetting.Position, hit.point);
+                        GameObject tempSpray = (GameObject)Instantiate(spray, hit.point, Quaternion.identity);
+                        tempSpray.transform.forward = hit.normal;
+
+                        this.Projectile.ApplyEffects(hit, (rotation + bulletSetting.Rotation));
+                    } else
+                    {
+                        Vector3 endpoint = (position + bulletSetting.Position) + (rotation + bulletSetting.Rotation) * this.Range;
+                        tempTracer.GetComponent<Tracer>().SetLocation(position + bulletSetting.Position, endpoint);
                     }
                 }
 
                 this.CurrentAmmo -= 1;
-                this.CurrentCooldown = (float)((FireRate *0.0d) - (PhotonNetwork.time - timeTriggered));
+                //this.CurrentCooldown = (float)((FireRate *0.0d) - (PhotonNetwork.time - timeTriggered));
                 this.State = WeaponState.Idle;
             }
         }

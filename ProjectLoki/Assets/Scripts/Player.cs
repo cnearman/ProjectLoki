@@ -10,12 +10,10 @@ public class Player : BaseClass {
     AbilitiesController Abilities;
     PhotonTransformView m_PhotonTransformView;
     Vector3 moveDirection;
-
-    public bool IsJumping { get; set; }
+    
 
     public float speed;
     public float jumpSpeed;
-    public float gravity;
 
     public float MotionInX { get; set; }
     public float MotionInY { get; set; }
@@ -30,6 +28,52 @@ public class Player : BaseClass {
     //these are different movement states. i put them here but there may be a better place
     public bool noMove; //you can look but you cant move (game countdown)
     public bool dead; //you dead. no move, collider and such inactive
+
+    //called on death
+    public void Die()
+    {
+        if (m_PhotonView.isMine)
+        {
+            m_PhotonView.RPC("KillThisPlayer", PhotonTargets.All);
+        }
+    }
+
+    //called on respawn
+    public void Respawn(Vector3 spawnPoint, float rot)
+    {
+        if (m_PhotonView.isMine)
+        {
+            m_PhotonView.RPC("SpawnThisPlayer", PhotonTargets.All, spawnPoint, rot);
+        }
+    }
+
+
+    //disables all things that need to be disabled across clients on death
+    [PunRPC]
+    void KillThisPlayer()
+    {
+        dead = true;
+
+        GetComponent<CapsuleCollider>().enabled = false;
+        GetComponent<MeshRenderer>().enabled = false;
+        GetComponent<CharacterController>().enabled = false;
+    }
+
+    //enables and resets values across clients on respawn
+    [PunRPC]
+    void SpawnThisPlayer(Vector3 spawnPoint, float rot)
+    {
+        transform.position = spawnPoint;
+
+        dead = false;
+
+        GetComponent<CapsuleCollider>().enabled = true;
+        GetComponent<MeshRenderer>().enabled = true;
+        GetComponent<CharacterController>().enabled = true;
+
+        RotationLateral = rot;
+    }
+
 
     // Use this for initialization
     void Start()
@@ -49,6 +93,12 @@ public class Player : BaseClass {
         Debug.Log(currentRotation);
     }
 
+
+    public void SetMoveY(float y)
+    {
+        moveDirection.y = y;
+    }
+
     // Update is called once per frame
     void Update()
     {
@@ -64,15 +114,10 @@ public class Player : BaseClass {
             return;
         }
 
-        if (Controller.isGrounded)
+        /*if (Controller.isGrounded)
         {
             moveDirection = Vector3.zero;
-            if (IsJumping)
-            {
-                moveDirection.y = jumpSpeed;
-                IsJumping = false;
-            }
-        }
+        }*/
 
         float vertical = Input.GetAxisRaw("Vertical");
         float horizontal = Input.GetAxisRaw("Horizontal");
@@ -98,8 +143,10 @@ public class Player : BaseClass {
             moveDirection.z = 0f;
         }
 
-        moveDirection.y -= gravity * Time.deltaTime;
-        Controller.Move(moveDirection * Time.deltaTime);
+        if (!dead)
+        {
+            Controller.Move(moveDirection * Time.deltaTime);
+        }
 
         //this sets the values to allow the speed synch option in the photon transform view
         m_PhotonTransformView.SetSynchronizedValues(Controller.velocity, 0f);
