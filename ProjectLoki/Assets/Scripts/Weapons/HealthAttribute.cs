@@ -5,16 +5,12 @@ public class HealthAttribute : BaseAttribute
 {
     private readonly float _minimumHealth = 0.0f;
 
-    public float MaxHealth { get; private set; }
+    public float MaxHealth;
 
     public bool IsDead { get { return GetCurrentValue() <= _minimumHealth; } }
 
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="maxValue"></param>
-    public HealthAttribute(float maxValue) : base(maxValue)
+    protected override void Awake()
     {
-        MaxHealth = maxValue;
+        base.Awake();
     }
 }

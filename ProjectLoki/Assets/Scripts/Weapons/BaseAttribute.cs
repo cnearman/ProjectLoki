@@ -1,13 +1,14 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using ExitGames.Client.Photon;
 
 /// <summary>
 /// 
 /// </summary>
-public class BaseAttribute
+public class BaseAttribute : BaseClass 
 {
     protected float _currentValue;
-    private float _baseValue;
+    public float BaseValue;
 
     public List<Effect> Effects;
 
@@ -16,17 +17,12 @@ public class BaseAttribute
     /// <summary>
     /// 
     /// </summary>
-    public BaseAttribute() : this(0) { }
-
-    /// <summary>
-    /// 
-    /// </summary>
     /// <param name="baseValue"></param>
-    public BaseAttribute(float baseValue)
+    protected virtual void Awake()
     {
         Effects = new List<Effect>();
-        _baseValue = baseValue;
-        _currentValue = _baseValue;
+        _currentValue = BaseValue;
+        /// PhotonPeer.RegisterType(typeof(BaseAttribute), (byte)'BAttr', SerializeVector2, DeserializeVector2);
     }
 
     /// <summary>
@@ -94,5 +90,27 @@ public class BaseAttribute
             _currentValue = (float) stream.ReceiveNext();
         }
     }
+
+    /*
+    public static byte[] SerializeBaseAttribute(object customObject)
+    {
+        BaseAttribute attr = customObject as BaseAttribute;
+
+        byte[] bytes = new byte[4];
+        int index = 0;
+        Protocol.Serialize(attr.GetCurrentValue(), bytes, ref index);
+        return bytes;
+    }
+
+    public static byte[] SerializeBaseAttribute(object customObject)
+    {
+        BaseAttribute attr = customObject as BaseAttribute;
+
+        byte[] bytes = new byte[4];
+        int index = 0;
+        Protocol.Deserialize(attr.GetCurrentValue(), bytes, ref index);
+        return bytes;
+    }
+    */
 }
 

@@ -10,7 +10,7 @@ public class AttributesController : BaseClass
     void Awake()
     { 
         _attributes = new Dictionary<AttributeType, BaseAttribute>();
-        _attributes[AttributeType.Health] = new HealthAttribute(20.0f);
+        _attributes[AttributeType.Health] = GetComponent<HealthAttribute>();
         Owner = GetComponent<Player>();
     }
 
@@ -20,7 +20,7 @@ public class AttributesController : BaseClass
         {
             Owner.Die();
         }
-
+        Debug.Log(_attributes[AttributeType.Health].GetCurrentValue());
         _attributes[AttributeType.Health].Tick(Time.deltaTime);
     }
 
