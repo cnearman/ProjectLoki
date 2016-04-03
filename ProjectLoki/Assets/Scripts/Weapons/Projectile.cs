@@ -8,6 +8,7 @@ public class DefaultProjectile : IProjectile {
     {
         List<Effect> effectsList = new List<Effect>();
         effectsList.Add(new DamageEffect(20.0f));
+        Effects = effectsList;
     }
 
     public void ApplyEffects(RaycastHit hit)

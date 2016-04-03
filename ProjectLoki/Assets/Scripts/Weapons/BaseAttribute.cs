@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 /// <summary>
 /// 
@@ -52,16 +53,18 @@ public class BaseAttribute
     /// <param name="delta"></param>
     public virtual void Tick(float delta)
     {
-        foreach(Effect effect in Effects)
+        Effects.ForEach(x => Process(x, delta));
+    }
+
+    public virtual void Process(Effect e, float delta)
+    {
+        if (e.Destroyed)
         {
-            if (effect.Destroyed)
-            {
-                RemoveEffect(effect);
-            }
-            else
-            {
-                effect.Tick(delta);
-            }
+            RemoveEffect(e);
+        }
+        else
+        {
+            e.Tick(delta);
         }
     }
 

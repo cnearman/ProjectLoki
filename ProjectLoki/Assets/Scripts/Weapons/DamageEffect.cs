@@ -7,6 +7,7 @@ public class DamageEffect : Effect
     public DamageEffect(float value) : base()
     {
         _damageValue = value;
+        AttributeTarget = AttributeType.Health;
     }
 
     public override float ModifyAttribute(float attributeValue)
