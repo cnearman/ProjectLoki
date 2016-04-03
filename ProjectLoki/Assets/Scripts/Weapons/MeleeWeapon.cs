@@ -37,7 +37,7 @@ namespace ProjectLoki.Weapons
             }
         }
 
-        public void Activate(Vector3 position, Vector3 rotation, double timeTriggered)
+        public bool Activate(Vector3 position, Vector3 rotation, double timeTriggered)
         {
             throw new NotImplementedException();
         }

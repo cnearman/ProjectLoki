@@ -61,14 +61,26 @@ namespace ProjectLoki.Weapons
 
         public void FireWeapon(Vector3 position, Vector3 rotation)
         {
-            this.m_PhotonView.RPC("FireWeaponOnServer", PhotonTargets.All, position, rotation, PhotonNetwork.time);
-            //this.CurrentWeapon.DisplayAnimation(position, rotation);
+            this.m_PhotonView.RPC("FireWeaponOnServer", PhotonTargets.MasterClient, position, rotation, PhotonNetwork.time);
+            this.CurrentWeapon.DisplayAnimation(position, rotation);
         }
 
         [PunRPC]
         public void FireWeaponOnServer(Vector3 position, Vector3 rotation, double timeTriggered)
         {
-            this.CurrentWeapon.Activate(position, rotation, timeTriggered);
+            if (this.CurrentWeapon.Activate(position, rotation, timeTriggered))
+            {
+                this.m_PhotonView.RPC("DisplayAnimationOthers", PhotonTargets.All, position, rotation);
+            }
+        }
+
+        [PunRPC]
+        public void DisplayAnimationOthers(Vector3 position, Vector3 rotation)
+        {
+            if (!m_PhotonView.isMine)
+            {
+                this.CurrentWeapon.DisplayAnimation(position, rotation);
+            }
         }
 
         public void SecondaryAction()

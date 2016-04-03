@@ -54,7 +54,14 @@ public class BaseAttribute
     {
         foreach(Effect effect in Effects)
         {
-            effect.Tick(delta);
+            if (effect.Destroyed)
+            {
+                RemoveEffect(effect);
+            }
+            else
+            {
+                effect.Tick(delta);
+            }
         }
     }
 
@@ -66,6 +73,23 @@ public class BaseAttribute
     {
         Effects.Add(effect);
         IsModified = true;
+    }
+
+    public void RemoveEffect(Effect effect)
+    {
+        Effects.Remove(effect);
+    }
+
+    public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
+    {
+        if (info.sender.isMasterClient)
+        { 
+            stream.SendNext(GetCurrentValue());
+        }
+        else // IsReading
+        {
+            _currentValue = (float) stream.ReceiveNext();
+        }
     }
 }
 

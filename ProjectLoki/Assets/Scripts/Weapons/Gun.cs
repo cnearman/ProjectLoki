@@ -78,36 +78,29 @@ namespace ProjectLoki.Weapons
             }
         }
 
-        public void Activate(Vector3 position, Vector3 rotation, double timeTriggered)
+        public bool Activate(Vector3 position, Vector3 rotation, double timeTriggered)
         {
-            if(this.CanFire)
+            if(CanFire)
             {
                 this.State = WeaponState.Firing;
                 float accuracy = 1.0f;
 
-                foreach(Fire bulletSetting in this.Distribution.GetDistribution(accuracy))
+                foreach (Fire bulletSetting in this.Distribution.GetDistribution(accuracy))
                 {
-                    GameObject tempTracer = (GameObject) Instantiate(tracer, Vector3.zero, Quaternion.identity);
-
                     RaycastHit hit = new RaycastHit(); 
                     if (Physics.Raycast(position + bulletSetting.Position , (rotation + bulletSetting.Rotation), out hit, this.Range))
                     {
-                        tempTracer.GetComponent<Tracer>().SetLocation(position + bulletSetting.Position, hit.point);
-                        GameObject tempSpray = (GameObject)Instantiate(spray, hit.point, Quaternion.identity);
-                        tempSpray.transform.forward = hit.normal;
-
                         this.Projectile.ApplyEffects(hit, (rotation + bulletSetting.Rotation));
-                    } else
-                    {
-                        Vector3 endpoint = (position + bulletSetting.Position) + (rotation + bulletSetting.Rotation) * this.Range;
-                        tempTracer.GetComponent<Tracer>().SetLocation(position + bulletSetting.Position, endpoint);
-                    }
+                    } 
                 }
 
                 this.CurrentAmmo -= 1;
                 //this.CurrentCooldown = (float)((FireRate *0.0d) - (PhotonNetwork.time - timeTriggered));
                 this.State = WeaponState.Idle;
+                return true; // Was fired
             }
+
+            return false; //was not fired.
         }
 
         [PunRPC]
@@ -116,10 +109,30 @@ namespace ProjectLoki.Weapons
 
         }
 
-        [PunRPC]
         public void DisplayAnimation(Vector3 position, Vector3 rotation)
         {
+            if (CanFire)
+            {
+                float accuracy = 1.0f;
+                foreach (Fire bulletSetting in this.Distribution.GetDistribution(accuracy))
+                {
+                    GameObject tempTracer = (GameObject)Instantiate(tracer, Vector3.zero, Quaternion.identity);
 
+                    RaycastHit hit = new RaycastHit();
+                    if (Physics.Raycast(position + bulletSetting.Position, (rotation + bulletSetting.Rotation), out hit, this.Range))
+                    {
+                        tempTracer.GetComponent<Tracer>().SetLocation(position + bulletSetting.Position, hit.point);
+                        GameObject tempSpray = (GameObject)Instantiate(spray, hit.point, Quaternion.identity);
+                        tempSpray.transform.forward = hit.normal;
+                        Debug.Log(hit.point);
+                    }
+                    else
+                    {
+                        Vector3 endpoint = (position + bulletSetting.Position) + (rotation + bulletSetting.Rotation) * this.Range;
+                        tempTracer.GetComponent<Tracer>().SetLocation(position + bulletSetting.Position, endpoint);
+                    }
+                }
+            }
         }
 
         public void Reload()

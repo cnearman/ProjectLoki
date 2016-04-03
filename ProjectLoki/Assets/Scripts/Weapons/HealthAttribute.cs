@@ -7,7 +7,7 @@ public class HealthAttribute : BaseAttribute
 
     public float MaxHealth { get; private set; }
 
-    public bool IsDead { get; private set; }
+    public bool IsDead { get { return GetCurrentValue() <= _minimumHealth; } }
 
     /// <summary>
     /// 
@@ -16,16 +16,5 @@ public class HealthAttribute : BaseAttribute
     public HealthAttribute(float maxValue) : base(maxValue)
     {
         MaxHealth = maxValue;
-    }
-
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="damageValue"></param>
-    public void Damage(float damageValue)
-    {
-        _currentValue -= damageValue;
-        IsDead = _currentValue <= _minimumHealth;
-        IsModified = true;
     }
 }

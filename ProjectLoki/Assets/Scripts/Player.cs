@@ -8,6 +8,7 @@ public class Player : BaseClass {
     CharacterController Controller;
     PhotonView m_PhotonView;
     AbilitiesController Abilities;
+    AttributeController Attributes;
     PhotonTransformView m_PhotonTransformView;
     Vector3 moveDirection;
     

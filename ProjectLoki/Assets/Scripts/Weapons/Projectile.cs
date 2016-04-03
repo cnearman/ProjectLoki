@@ -4,6 +4,12 @@ using System.Collections.Generic;
 public class DefaultProjectile : IProjectile {
     public IEnumerable<Effect> Effects;
 
+    public DefaultProjectile()
+    {
+        List<Effect> effectsList = new List<Effect>();
+        effectsList.Add(new DamageEffect(20.0f));
+    }
+
     public void ApplyEffects(RaycastHit hit)
     {
         Debug.Log(hit.collider.name);
@@ -20,6 +26,8 @@ public class DefaultProjectile : IProjectile {
                 GameObject gm = GameObject.Find("Connect_Test");
                 gm.GetComponent<GameManager>().ShowDamageMarkers(direction);
             }
+
+            hit.collider.GetComponent<AttributeController>().ApplyEffects(Effects);
         }
     }
 }

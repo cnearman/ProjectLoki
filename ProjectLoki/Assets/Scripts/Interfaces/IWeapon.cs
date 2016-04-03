@@ -2,7 +2,7 @@
 
 public interface IWeapon{
 
-    void Activate(Vector3 position, Vector3 rotation, double timeTriggered);
+    bool Activate(Vector3 position, Vector3 rotation, double timeTriggered);
 
     void ReduceCooldowns(float delta);
 

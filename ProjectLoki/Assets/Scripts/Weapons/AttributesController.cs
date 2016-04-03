@@ -3,24 +3,41 @@ using UnityEngine;
 
 public class AttributeController : BaseClass
 {
-    private Dictionary<string, BaseAttribute> _attributes;
+    private Player Owner;
+
+    private Dictionary<AttributeType, BaseAttribute> _attributes;
 
     public AttributeController()
     {
-        _attributes = new Dictionary<string, BaseAttribute>();
-        _attributes["health"] = new HealthAttribute(20.0f);
+        _attributes = new Dictionary<AttributeType, BaseAttribute>();
+        _attributes[AttributeType.Health] = new HealthAttribute(20.0f);
+        Owner = GetComponent<Player>();
     }
 
     void Update()
     {
-        _attributes["health"].Tick(Time.deltaTime);
+        if (((HealthAttribute) _attributes[AttributeType.Health]).IsDead)
+        {
+            Owner.Die();
+        }
+
+        _attributes[AttributeType.Health].Tick(Time.deltaTime);
     }
 
-    public void ApplyEffect(Effect effect, string target)
+    public void ApplyEffect(Effect effect, AttributeType type)
     {
-        if (_attributes.ContainsKey(target))
+        if (_attributes.ContainsKey(type))
         {
-            _attributes[target].AddEffect(effect);
+            _attributes[type].AddEffect(effect);
+        }
+    }
+
+    public void ApplyEffects(IEnumerable<Effect> effects)
+    {
+        foreach(var effect in effects)
+        {
+            ApplyEffect(effect, effect.AttributeTarget);
+            //RPC call that says to update UI with effects stuff
         }
     }
 }
