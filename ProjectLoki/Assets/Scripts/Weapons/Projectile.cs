@@ -27,7 +27,7 @@ public class DefaultProjectile : IProjectile {
                 gm.GetComponent<GameManager>().ShowDamageMarkers(direction);
             }
 
-            hit.collider.GetComponent<AttributeController>().ApplyEffects(Effects);
+            hit.collider.GetComponent<AttributesController>().ApplyEffects(Effects);
         }
     }
 }

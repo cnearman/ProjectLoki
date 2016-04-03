@@ -1,14 +1,14 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-public class AttributeController : BaseClass
+public class AttributesController : BaseClass
 {
     private Player Owner;
 
     private Dictionary<AttributeType, BaseAttribute> _attributes;
 
-    public AttributeController()
-    {
+    void Awake()
+    { 
         _attributes = new Dictionary<AttributeType, BaseAttribute>();
         _attributes[AttributeType.Health] = new HealthAttribute(20.0f);
         Owner = GetComponent<Player>();
