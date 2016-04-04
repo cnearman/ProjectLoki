@@ -66,7 +66,7 @@ namespace ProjectLoki.Weapons
         {
             get
             {
-                return this.CurrentAmmo > 0 && this.CurrentCooldown == 0 && this.IsIdle;
+                return this.CurrentAmmo > 0 && this.CurrentCooldown <= 0 && this.IsIdle;
             }
         }
 

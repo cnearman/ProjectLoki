@@ -61,8 +61,9 @@ namespace ProjectLoki.Weapons
 
         public void FireWeapon(Vector3 position, Vector3 rotation)
         {
-            this.m_PhotonView.RPC("FireWeaponOnServer", PhotonTargets.MasterClient, position, rotation, PhotonNetwork.time);
             this.CurrentWeapon.DisplayAnimation(position, rotation);
+            this.m_PhotonView.RPC("FireWeaponOnServer", PhotonTargets.MasterClient, position, rotation, PhotonNetwork.time);
+            
         }
 
         [PunRPC]
